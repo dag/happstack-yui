@@ -1,0 +1,23 @@
+Name          : happstack-yui
+Version       : 7351.0.0
+License       : BSD3
+Cabal-Version : >= 1.10
+Build-Type    : Simple
+
+Data-Files : {
+#include "bundle.h"
+}
+
+Library
+  HS-Source-Dirs   : src
+  Default-Language : Haskell2010
+  GHC-Options      : -Wall
+  Exposed-Modules  :
+    Happstack.YUI
+  Other-Modules    :
+    Happstack.YUI.Bundle
+  Build-Depends    :
+    base == 4.*,
+    bytestring,
+    containers,
+    file-embed

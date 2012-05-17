@@ -1,4 +1,9 @@
-yui
+bundle
+bundle.h
 yui_*.zip
 .*.*~
 .*.sw?
+dist
+tags
+cabal-dev
+happstack-yui.cabal
