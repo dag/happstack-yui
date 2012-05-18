@@ -19,7 +19,7 @@ import Text.Boomerang.TH            (derivePrinterParsers)
 import Text.PrettyPrint             (Style(mode), Mode(OneLineMode), renderStyle, style)
 import Web.Routes                   (Site, RouteT, showURL)
 import Web.Routes.Boomerang         (Router, (<>), (</>), anyString, boomerangSiteRouteT)
-import Web.Routes.Happstack         ()
+import Web.Routes.Happstack         (implSite)
 
 import Happstack.YUI.Bundle
 
@@ -43,6 +43,9 @@ sitemap =
 
 site :: Site Sitemap (ServerPartT IO Response)
 site = boomerangSiteRouteT route sitemap
+
+implYUISite :: T.Text -> T.Text -> ServerPartT IO Response
+implYUISite domain approot = implSite domain (T.append approot "/3.5.1/") site  -- TODO: pass in YUI version via CPP from makefile?
 
 mkConfig :: RouteT Sitemap (ServerPartT IO) JStat
 mkConfig = do
