@@ -25,7 +25,7 @@ import Web.Routes.Happstack         (implSite)
 import Language.Javascript.JMacro   (JStat(..), JExpr(..), JVal(..), Ident(..))
 #endif
 
-import Happstack.YUI.Bundle
+import Happstack.YUI.Bundle         (bundle)
 
 data Sitemap
     = ComboHandlerURL
