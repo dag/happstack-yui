@@ -18,6 +18,15 @@ Library
     Happstack.YUI.Bundle
   Build-Depends    :
     base == 4.*,
+    boomerang,
     bytestring,
     containers,
-    file-embed
+    file-embed,
+    happstack-jmacro,
+    happstack-server,
+    jmacro,
+    pretty,
+    text,
+    web-routes,
+    web-routes-boomerang,
+    web-routes-happstack
