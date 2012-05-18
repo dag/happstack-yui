@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
+{-# LANGUAGE CPP, OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
 
 module Happstack.YUI where
 
@@ -14,12 +14,16 @@ import Data.Text.Encoding           (encodeUtf8)
 import Happstack.Server             (ServerPartT, Response, neverExpires, setHeaderM, ok, toResponse, guessContentTypeM, mimeTypes, lookPairs)
 import Happstack.Server.Compression (compressedResponseFilter)
 import Happstack.Server.JMacro      ()
-import Language.Javascript.JMacro   (JStat(..), JExpr(..), JVal(..), Ident(..), jmacro, renderJs, jhFromList, toJExpr)
+import Language.Javascript.JMacro   (JStat(BlockStat), jmacro, renderJs, jhFromList, toJExpr)
 import Text.Boomerang.TH            (derivePrinterParsers)
 import Text.PrettyPrint             (Style(mode), Mode(OneLineMode), renderStyle, style)
 import Web.Routes                   (Site, RouteT, showURL)
 import Web.Routes.Boomerang         (Router, (<>), (</>), anyString, boomerangSiteRouteT)
 import Web.Routes.Happstack         (implSite)
+
+#if !MIN_VERSION_template_haskell(2,7,0)
+import Language.Javascript.JMacro   (JStat(..), JExpr(..), JVal(..), Ident(..))
+#endif
 
 import Happstack.YUI.Bundle
 

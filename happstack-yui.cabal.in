@@ -26,6 +26,7 @@ Library
     happstack-server,
     jmacro,
     pretty,
+    template-haskell,
     text,
     web-routes,
     web-routes-boomerang,
