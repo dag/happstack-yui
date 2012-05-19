@@ -38,13 +38,11 @@ derivePrinterParsers ''Sitemap
 sitemap :: Router Sitemap
 sitemap =
     "3.5.1" </>                                                                 -- TODO: pass in YUI version via CPP from makefile?
-      rComboHandlerURL . "combo"
-        <>
-      rBundleURL . "bundle" </> anyString
-        <>
-      rConfigURL . "config"
-        <>
-      rSeedURL
+       ( rComboHandlerURL . "combo"
+      <> rBundleURL . "bundle" </> anyString
+      <> rConfigURL . "config"
+      <> rSeedURL
+       )
 
 site :: Site Sitemap (ServerPartT IO Response)
 site = boomerangSiteRouteT route sitemap
