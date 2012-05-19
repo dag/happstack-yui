@@ -72,7 +72,7 @@ route url = do
            let combo = [ bundle Map.! q | (q,_) <- qs, Map.member q bundle ]    -- TODO: use Map.lookup instead of Map.member + Map.!
            setHeaderM "Content-Type" "application/javascript"                   -- TODO: guess content type from first file
            if null combo                                                        -- TODO: maybe mzero also if a requested file isn't found
-             then mzero                                                         --       (actually research what other combohandlers do error handling)
+             then mzero                                                         --       (actually research how other combohandlers do error handling)
              else ok $ toResponse $ B.concat combo
       ConfigURL ->
         do config <- mkConfig
