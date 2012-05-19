@@ -10,6 +10,7 @@ import qualified Data.Text       as T
 
 import Control.Category             (Category((.)))
 import Control.Monad                (void, mzero)
+import Data.List                    (intercalate)
 import Data.Text.Encoding           (encodeUtf8)
 import Happstack.Server             (ServerPartT, Response, neverExpires, setHeaderM, ok, toResponse, guessContentTypeM, mimeTypes, lookPairs)
 import Happstack.Server.Compression (compressedResponseFilter)
@@ -18,7 +19,7 @@ import Language.Javascript.JMacro   (JStat(BlockStat), jmacro, renderJs, jhFromL
 import Text.Boomerang.TH            (derivePrinterParsers)
 import Text.PrettyPrint             (Style(mode), Mode(OneLineMode), renderStyle, style)
 import Web.Routes                   (Site, RouteT, showURL)
-import Web.Routes.Boomerang         (Router, (<>), (</>), anyString, boomerangSiteRouteT)
+import Web.Routes.Boomerang         (Router, (<>), (</>), rList, anyString, eos, boomerangSiteRouteT)
 import Web.Routes.Happstack         (implSite)
 
 #if !MIN_VERSION_template_haskell(2,7,0)
@@ -29,7 +30,7 @@ import Happstack.YUI.Bundle         (bundle)
 
 data Sitemap
     = ComboHandlerURL
-    | BundleURL FilePath
+    | BundleURL [String]
     | ConfigURL
     | SeedURL
 
@@ -39,7 +40,7 @@ sitemap :: Router Sitemap
 sitemap =
     "3.5.1" </>                                                                 -- TODO: pass in YUI version via CPP from makefile?
        ( rComboHandlerURL . "combo"
-      <> rBundleURL . "bundle" </> anyString
+      <> rBundleURL . "bundle" </> rList (anyString . eos)
       <> rConfigURL . "config"
       <> rSeedURL
        )
@@ -63,8 +64,9 @@ route url = do
     void compressedResponseFilter
     setHeaderM "Content-Type" "application/javascript"                          -- TODO: guess content type from first file for combohandler
     case url of
-      BundleURL filepath ->
-        do mime <- guessContentTypeM mimeTypes filepath
+      BundleURL paths ->
+        do let filepath = intercalate "/" paths
+           mime <- guessContentTypeM mimeTypes filepath
            setHeaderM "Content-Type" mime
            maybe mzero (ok . toResponse) $ Map.lookup filepath bundle
       ComboHandlerURL ->
