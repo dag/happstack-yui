@@ -37,19 +37,20 @@ derivePrinterParsers ''Sitemap
 
 sitemap :: Router Sitemap
 sitemap =
-    rComboHandlerURL . "combo"
-      <>
-    rBundleURL . "bundle" </> anyString
-      <>
-    rConfigURL . "config"
-      <>
-    rSeedURL
+    "3.5.1" </>                                                                 -- TODO: pass in YUI version via CPP from makefile?
+      rComboHandlerURL . "combo"
+        <>
+      rBundleURL . "bundle" </> anyString
+        <>
+      rConfigURL . "config"
+        <>
+      rSeedURL
 
 site :: Site Sitemap (ServerPartT IO Response)
 site = boomerangSiteRouteT route sitemap
 
 implYUISite :: T.Text -> T.Text -> ServerPartT IO Response
-implYUISite domain approot = implSite domain (T.append approot "/3.5.1") site   -- TODO: pass in YUI version via CPP from makefile?
+implYUISite domain approot = implSite domain approot site
 
 mkConfig :: RouteT Sitemap (ServerPartT IO) JStat
 mkConfig = do
