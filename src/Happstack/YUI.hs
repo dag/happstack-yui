@@ -49,7 +49,7 @@ site :: Site Sitemap (ServerPartT IO Response)
 site = boomerangSiteRouteT route sitemap
 
 implYUISite :: T.Text -> T.Text -> ServerPartT IO Response
-implYUISite domain approot = implSite domain (T.append approot "/3.5.1") site  -- TODO: pass in YUI version via CPP from makefile?
+implYUISite domain approot = implSite domain (T.append approot "/3.5.1") site   -- TODO: pass in YUI version via CPP from makefile?
 
 mkConfig :: RouteT Sitemap (ServerPartT IO) JStat
 mkConfig = do
@@ -62,6 +62,7 @@ route :: Sitemap -> RouteT Sitemap (ServerPartT IO) Response
 route url = do
     neverExpires
     void compressedResponseFilter
+    setHeaderM "Content-Type" "application/javascript"                          -- TODO: guess content type from first file for combohandler
     case url of
       BundleURL filepath ->
         do mime <- guessContentTypeM mimeTypes filepath
@@ -70,7 +71,6 @@ route url = do
       ComboHandlerURL ->
         do qs <- lookPairs
            let combo = [ bundle Map.! q | (q,_) <- qs, Map.member q bundle ]    -- TODO: use Map.lookup instead of Map.member + Map.!
-           setHeaderM "Content-Type" "application/javascript"                   -- TODO: guess content type from first file
            if null combo                                                        -- TODO: maybe mzero also if a requested file isn't found
              then mzero                                                         --       (actually research how other combohandlers do error handling)
              else ok $ toResponse $ B.concat combo
