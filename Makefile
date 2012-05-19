@@ -23,3 +23,8 @@ build: happstack-yui.cabal
 .PHONY: install
 install: happstack-yui.cabal
 	cabal-dev install
+
+.PHONY: demo
+demo: install
+	PATH=$(PWD)/cabal-dev/bin:$(PATH) cabal-dev install ./demo
+	cabal-dev/bin/happstack-yui-demo

@@ -1,0 +1,21 @@
+Name          : happstack-yui-demo
+Version       : 0.1.0
+License       : BSD3
+Cabal-Version : >= 1.10
+Build-Type    : Simple
+
+Executable happstack-yui-demo
+  Main-Is          : happstack-yui-demo.hs
+  Default-Language : Haskell2010
+  GHC-Options      :
+    -Wall
+    -fno-warn-orphans
+    -threaded -rtsopts -with-rtsopts=-N
+  Build-Depends    :
+    base == 4.*,
+    happstack-hsp,
+    happstack-server,
+    happstack-yui,
+    hsx-jmacro,
+    jmacro,
+    mtl

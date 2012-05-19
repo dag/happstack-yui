@@ -1,2 +1,3 @@
 language: haskell
 before_install: make happstack-yui.cabal
+after_install: cabal install ./demo
