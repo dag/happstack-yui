@@ -30,6 +30,9 @@ Description :
   bundled YUI, for example a combo handler for YUI modules written using
   JMacro, a bridge between HSX and YUI Node objects and tools for working
   with the YUI CSS modules.
+  .
+  For an example application, see:
+  <https://github.com/dag/happstack-yui/blob/master/demo/happstack-yui-demo.hs>
 
 Data-Files : {
 #include "bundle.h"
