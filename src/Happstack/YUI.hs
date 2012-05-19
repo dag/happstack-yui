@@ -49,13 +49,13 @@ site :: Site Sitemap (ServerPartT IO Response)
 site = boomerangSiteRouteT route sitemap
 
 implYUISite :: T.Text -> T.Text -> ServerPartT IO Response
-implYUISite domain approot = implSite domain (T.append approot "/3.5.1/") site  -- TODO: pass in YUI version via CPP from makefile?
+implYUISite domain approot = implSite domain (T.append approot "/3.5.1") site  -- TODO: pass in YUI version via CPP from makefile?
 
 mkConfig :: RouteT Sitemap (ServerPartT IO) JStat
 mkConfig = do
     comboURL <- showURL ComboHandlerURL
     return [jmacro|
-       YUI.applyConfig { comboBase: `((T.unpack comboURL) ++ "?")` }
+       YUI.applyConfig { comboBase: `((T.unpack comboURL) ++ "?")`, root: "" }
     |]
 
 route :: Sitemap -> RouteT Sitemap (ServerPartT IO) Response
