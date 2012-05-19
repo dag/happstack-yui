@@ -1,6 +1,9 @@
 {-# LANGUAGE CPP, OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
 
-module Happstack.YUI where
+module Happstack.YUI
+  ( implYUISite
+  , bundle
+  ) where
 
 import Prelude hiding ((.))
 
@@ -48,7 +51,30 @@ sitemap =
 site :: Site Sitemap (ServerPartT IO Response)
 site = boomerangSiteRouteT route sitemap
 
-implYUISite :: T.Text -> T.Text -> ServerPartT IO Response
+-- | Mounts a handler for serving YUI.
+--
+-- The handler responds to these routes:
+--
+-- [@\/3.5.1\/@]
+--   The YUI seed file plus the configuration for using our own
+--   combo loader.
+--
+-- [@\/3.5.1\/combo@]
+--   The combo loader.
+--
+-- [@\/3.5.1\/bundle\/\<filename\>@]
+--   Get an individual file without combo loading.
+--
+-- [@\/3.5.1\/config@]
+--   The code for configuring YUI to use our own combo loader.  Not needed
+--   if you use the seed file mentioned above.
+--
+-- The version number of the bundled YUI release is included in the routes
+-- for sake of cache-busting: the routes all respond with far-future
+-- expiration dates.
+implYUISite :: T.Text  -- ^ The URL of your application, e.g. @\"http:\/\/localhost:8000\"@.
+            -> T.Text  -- ^ The path under which to mount the YUI handler, e.g. @\"/yui\"@.
+            -> ServerPartT IO Response
 implYUISite domain approot = implSite domain approot site
 
 mkConfig :: RouteT Sitemap (ServerPartT IO) JStat
