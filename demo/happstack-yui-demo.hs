@@ -10,7 +10,7 @@ import Data.Unique
 import HSX.JMacro
 import Happstack.Server
 import Happstack.Server.HSP.HTML
-import Happstack.YUI
+import Happstack.Server.YUI
 import Language.Javascript.JMacro
 
 instance IntegerSupply (ServerPartT IO) where

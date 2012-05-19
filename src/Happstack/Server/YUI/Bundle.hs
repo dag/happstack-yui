@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Happstack.YUI.Bundle where
+module Happstack.Server.YUI.Bundle where
 
 import Data.ByteString (ByteString)
 import Data.FileEmbed  (embedDir)

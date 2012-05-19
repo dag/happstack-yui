@@ -44,9 +44,9 @@ Library
   Default-Language : Haskell2010
   GHC-Options      : -Wall
   Exposed-Modules  :
-    Happstack.YUI
+    Happstack.Server.YUI
   Other-Modules    :
-    Happstack.YUI.Bundle
+    Happstack.Server.YUI.Bundle
   Build-Depends    :
     base == 4.*,
     boomerang,
