@@ -41,7 +41,7 @@ derivePrinterParsers ''Sitemap
 
 sitemap :: Router Sitemap
 sitemap =
-    "3.5.1" </>                                                                 -- TODO: pass in YUI version via CPP from makefile?
+    "YUI_VERSION" </>
        ( rComboHandlerURL . "combo"
       <> rCSSComboURL . "css"
       <> rBundleURL . "bundle" </> rList (anyString . eos)
@@ -56,23 +56,24 @@ site = boomerangSiteRouteT route sitemap
 --
 -- The handler responds to these routes:
 --
--- [@\/3.5.1\/@]
+-- [@\/YUI_VERSION\/@]
 --   The YUI seed file plus the configuration for using our own
 --   combo loader.
 --
--- [@\/3.5.1\/combo@]
+-- [@\/YUI_VERSION\/combo@]
 --   The combo loader.
 --
--- [@\/3.5.1\/css@]
+-- [@\/YUI_VERSION\/css@]
 --   A specialized combo loader for CSS modules, for use in @\<link\/\>@
 --   tags.  Simply list the CSS modules in the query string by name rather
---   than file path, for example @\"\/3.5.1\/css?reset&base&fonts&grids\"@.
---   Order matters; you'll usually want reset first if you use it.
+--   than file path, for example
+--   @\"\/YUI_VERSION\/css?reset&base&fonts&grids\"@.  Order matters;
+--   you'll usually want reset first if you use it.
 --
--- [@\/3.5.1\/bundle\/\<filename\>@]
+-- [@\/YUI_VERSION\/bundle\/\<filename\>@]
 --   Get an individual file without combo loading.
 --
--- [@\/3.5.1\/config@]
+-- [@\/YUI_VERSION\/config@]
 --   The code for configuring YUI to use our own combo loader.  Not needed
 --   if you use the seed file mentioned above.
 --

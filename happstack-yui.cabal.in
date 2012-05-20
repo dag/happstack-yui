@@ -10,12 +10,12 @@ Cabal-Version : >= 1.10
 Build-Type    : Simple
 
 Description :
-  Bundles YUI 3.5.1 and includes a \"combo handler\" for use in Happstack
-  which concatenates YUI modules server-side to send in a single HTTP
-  request.  The YUI bundle is embedded in the library with Template Haskell
-  which means the files are served directly from memory, and also that you
-  can compile and deploy a single executable without having to worry about
-  deploying the YUI files as well.
+  Bundles YUI YUI_VERSION and includes a \"combo handler\" for use in
+  Happstack which concatenates YUI modules server-side to send in a single
+  HTTP request.  The YUI bundle is embedded in the library with Template
+  Haskell which means the files are served directly from memory, and also
+  that you can compile and deploy a single executable without having to
+  worry about deploying the YUI files as well.
   .
   The benefits of using this over the Yahoo! CDN is that you can work
   offline and that you can host YUI yourself without sacrificing the
@@ -46,6 +46,7 @@ Library
   HS-Source-Dirs   : src
   Default-Language : Haskell2010
   GHC-Options      : -Wall
+  CPP-Options      : -DYUI_VERSION=YUI_VERSION
   Exposed-Modules  :
     Happstack.Server.YUI
   Other-Modules    :
