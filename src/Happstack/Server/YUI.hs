@@ -12,10 +12,10 @@ import qualified Data.Map        as Map
 import qualified Data.Text       as T
 
 import Control.Category             (Category((.)))
-import Control.Monad                (void, mzero)
+import Control.Monad                (liftM, void, mzero)
 import Data.List                    (intercalate)
 import Data.Text.Encoding           (encodeUtf8)
-import Happstack.Server             (ServerPartT, Response, neverExpires, setHeaderM, ok, toResponse, guessContentTypeM, mimeTypes, lookPairs)
+import Happstack.Server             (ServerPartT, Response, neverExpires, setHeaderM, badRequest, ok, toResponse, guessContentTypeM, mimeTypes, lookPairs)
 import Happstack.Server.Compression (compressedResponseFilter)
 import Happstack.Server.JMacro      ()
 import Happstack.Server.YUI.Bundle  (bundle)
@@ -102,18 +102,18 @@ route url = do
            setHeaderM "Content-Type" mime
            maybe mzero (ok . toResponse) $ Map.lookup filepath bundle
       ComboHandlerURL ->
-        do qs <- lookPairs
-           mime <- guessContentTypeM mimeTypes (fst . head $ qs)
-           setHeaderM "Content-Type" mime
-           let combo = [ bundle Map.! q | (q,_) <- qs, Map.member q bundle ]    -- TODO: use Map.lookup instead of Map.member + Map.!
-           if null combo                                                        -- TODO: maybe mzero also if a requested file isn't found
-             then mzero                                                         --       (actually research how other combohandlers do error handling)
-             else ok $ toResponse $ B.concat combo
+        do qs <- liftM (map fst) lookPairs
+           if null qs || any (`Map.notMember` bundle) qs
+             then badRequest $ toResponse ()
+             else do mime <- guessContentTypeM mimeTypes $ head qs
+                     setHeaderM "Content-Type" mime
+                     ok $ toResponse $ B.concat $ map (bundle Map.!) qs
       CSSComboURL ->
-        do qs <- lookPairs
-           let combo = [ bundle Map.! f | f <- map (css . fst) qs, Map.member f bundle ]
-           setHeaderM "Content-Type" "text/css"
-           ok $ toResponse $ B.concat combo
+        do qs <- liftM (map (css . fst)) lookPairs
+           if null qs || any (`Map.notMember` bundle) qs
+             then badRequest $ toResponse ()
+             else do setHeaderM "Content-Type" "text/css"
+                     ok $ toResponse $ B.concat $ map (bundle Map.!) qs
       ConfigURL ->
         do config <- mkConfig
            ok $ toResponse config
