@@ -24,6 +24,7 @@ build: happstack-yui.cabal
 install: happstack-yui.cabal
 	cabal-dev install
 
+.PHONY: sdist
 sdist: happstack-yui.cabal
 	cabal sdist
 
