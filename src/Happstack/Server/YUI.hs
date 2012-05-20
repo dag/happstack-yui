@@ -34,6 +34,7 @@ data Sitemap
     = ComboHandlerURL
     | BundleURL [String]
     | ConfigURL
+    | CSSComboURL
     | SeedURL
 
 derivePrinterParsers ''Sitemap
@@ -42,6 +43,7 @@ sitemap :: Router Sitemap
 sitemap =
     "3.5.1" </>                                                                 -- TODO: pass in YUI version via CPP from makefile?
        ( rComboHandlerURL . "combo"
+      <> rCSSComboURL . "css"
       <> rBundleURL . "bundle" </> rList (anyString . eos)
       <> rConfigURL . "config"
       <> rSeedURL
@@ -60,6 +62,12 @@ site = boomerangSiteRouteT route sitemap
 --
 -- [@\/3.5.1\/combo@]
 --   The combo loader.
+--
+-- [@\/3.5.1\/css@]
+--   A specialized combo loader for CSS modules, for use in @\<link\/\>@
+--   tags.  Simply list the CSS modules in the query string by name rather
+--   than file path, for example @\"\/3.5.1\/css?reset&base&fonts&grids\"@.
+--   Order matters; you'll usually want reset first if you use it.
 --
 -- [@\/3.5.1\/bundle\/\<filename\>@]
 --   Get an individual file without combo loading.
@@ -101,6 +109,11 @@ route url = do
            if null combo                                                        -- TODO: maybe mzero also if a requested file isn't found
              then mzero                                                         --       (actually research how other combohandlers do error handling)
              else ok $ toResponse $ B.concat combo
+      CSSComboURL ->
+        do qs <- lookPairs
+           let combo = [ bundle Map.! f | f <- map (css . fst) qs, Map.member f bundle ]
+           setHeaderM "Content-Type" "text/css"
+           ok $ toResponse $ B.concat combo
       ConfigURL ->
         do config <- mkConfig
            ok $ toResponse config
@@ -112,3 +125,4 @@ route url = do
     seed   = bundle Map.! "yui/yui-min.js"
     render = renderStyle (style { mode = OneLineMode }) . renderJs
     encode = encodeUtf8 . T.pack
+    css fn = "css" ++ fn ++ "/css" ++ fn ++ "-min.css"

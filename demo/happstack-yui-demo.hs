@@ -27,7 +27,7 @@ demo :: ServerPart Response
 demo = liftM toResponse $ unXMLGenT
     <html>
       <head>
-        <link href="http://localhost:8000/yui/3.5.1/combo?cssfonts/cssfonts-min.css" rel="stylesheet"/>
+        <link href="http://localhost:8000/yui/3.5.1/css?reset&base&fonts" rel="stylesheet"/>
         <script src="http://localhost:8000/yui/3.5.1/"/>
         <% [jmacro| YUI().use "node" \y -> y.one("h1").set("text", "Set from YUI!") |] %>
       </head>
