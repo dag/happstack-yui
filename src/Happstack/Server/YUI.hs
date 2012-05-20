@@ -41,7 +41,7 @@ derivePrinterParsers ''Sitemap
 
 sitemap :: Router Sitemap
 sitemap =
-    "YUI_VERSION" </>
+    YUI_VERSION_STR </>
        ( rComboHandlerURL . "combo"
       <> rCSSComboURL . "css"
       <> rBundleURL . "bundle" </> rList (anyString . eos)

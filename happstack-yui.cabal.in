@@ -46,7 +46,7 @@ Library
   HS-Source-Dirs   : src
   Default-Language : Haskell2010
   GHC-Options      : -Wall
-  CPP-Options      : -DYUI_VERSION=YUI_VERSION
+  CPP-Options      : -DYUI_VERSION=YUI_VERSION -DYUI_VERSION_STR=YUI_VERSION_STR
   Exposed-Modules  :
     Happstack.Server.YUI
   Other-Modules    :

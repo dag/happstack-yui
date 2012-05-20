@@ -14,7 +14,7 @@ bundle.h: bundle
 	find bundle -type f > $@
 
 happstack-yui.cabal: happstack-yui.cabal.in bundle.h
-	cpp -P -traditional-cpp -DYUI_VERSION=$(YUI_VERSION) $< $@
+	cpp -P -traditional-cpp -DYUI_VERSION=$(YUI_VERSION) '-DYUI_VERSION_STR="$(YUI_VERSION)"' $< $@
 
 .PHONY: build
 build: happstack-yui.cabal
