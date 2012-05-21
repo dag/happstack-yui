@@ -3,6 +3,7 @@
 module Happstack.Server.YUI
   ( implYUISite
   , bundle
+  , gridUnit
   ) where
 
 import Prelude hiding ((.))
@@ -14,6 +15,7 @@ import qualified Data.Text       as T
 import Control.Category             (Category((.)))
 import Control.Monad                (liftM, void, mzero)
 import Data.List                    (intercalate)
+import Data.Ratio                   ((%), numerator,denominator)
 import Data.Text.Encoding           (encodeUtf8)
 import Happstack.Server             (ServerPartT, Response, neverExpires, setHeaderM, badRequest, ok, toResponse, guessContentTypeM, mimeTypes, lookPairs)
 import Happstack.Server.Compression (compressedResponseFilter)
@@ -127,3 +129,25 @@ route url = do
     render = renderStyle (style { mode = OneLineMode }) . renderJs
     encode = encodeUtf8 . T.pack
     css fn = "css" ++ fn ++ "/css" ++ fn ++ "-min.css"
+
+-- | Gets the class name for the grid unit of the ratio of the two argument
+-- integers.  YUI doesn't define redundant classes like \"6\/24\" because
+-- that is the same as 1\/4 and presumably for sake of a smaller CSS file.
+-- This helper function handles that for you, though:
+--
+-- >>> gridUnit 6 24
+-- "yui3-u-1-4"
+--
+-- The intention is for this function to be used in templates to create
+-- values for class attributes, for example with HSP:
+--
+-- ><div class=(gridUnit 6 24)>
+-- >  <% someContent %>
+-- ></div>
+gridUnit :: Integer -> Integer -> T.Text
+gridUnit n d =
+    T.concat [ "yui3-u-"
+             , T.pack . show . numerator $ n % d
+             , "-"
+             , T.pack . show . denominator $ n % d
+             ]
