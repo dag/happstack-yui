@@ -60,6 +60,7 @@ Library
     happstack-jmacro      == 7.0.*,
     happstack-server      == 7.0.*,
     jmacro                == 0.5.*,
+    mtl                   == 2.1.*,
     pretty                == 1.1.*,
     template-haskell      >= 2.5 && < 2.8,
     text                  == 0.11.*,

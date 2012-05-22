@@ -1,11 +1,19 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Happstack.Server.YUI.Bundle where
+module Happstack.Server.YUI.Bundle
+  ( isYUIFile
+  , readYUIFile
+  ) where
 
 import Data.ByteString (ByteString)
 import Data.FileEmbed  (embedDir)
-import Data.Map        (Map, fromList)
+import Data.Map        (Map, (!), fromList, member)
 
--- | Maps the filenames of the bundled YUI build to their contents.
 bundle :: Map FilePath ByteString
 bundle = fromList $(embedDir "bundle")
+
+isYUIFile :: FilePath -> IO Bool
+isYUIFile name = return $ member name bundle
+
+readYUIFile :: FilePath -> IO ByteString
+readYUIFile name = return $ bundle ! name

@@ -2,7 +2,8 @@
 
 module Happstack.Server.YUI
   ( implYUISite
-  , bundle
+  , isYUIFile
+  , readYUIFile
   , gridUnit
   , fontSize
   ) where
@@ -10,18 +11,18 @@ module Happstack.Server.YUI
 import Prelude hiding ((.))
 
 import qualified Data.ByteString as B
-import qualified Data.Map        as Map
 import qualified Data.Text       as T
 
 import Control.Category             (Category((.)))
-import Control.Monad                (liftM, void, mzero)
+import Control.Monad                (guard, liftM, void)
+import Control.Monad.Trans          (liftIO)
 import Data.List                    (intercalate)
 import Data.Ratio                   ((%), numerator,denominator)
 import Data.Text.Encoding           (encodeUtf8)
 import Happstack.Server             (ServerPartT, Response, neverExpires, setHeaderM, badRequest, ok, toResponse, guessContentTypeM, mimeTypes, lookPairs)
 import Happstack.Server.Compression (compressedResponseFilter)
 import Happstack.Server.JMacro      ()
-import Happstack.Server.YUI.Bundle  (bundle)
+import Happstack.Server.YUI.Bundle  (isYUIFile, readYUIFile)
 import Language.Javascript.JMacro   (JStat(BlockStat), jmacro, renderJs, jhFromList, toJExpr)
 import Text.Boomerang.TH            (derivePrinterParsers)
 import Text.PrettyPrint             (Style(mode), Mode(OneLineMode), renderStyle, style)
@@ -102,32 +103,39 @@ route url = do
     void compressedResponseFilter
     case url of
       BundleURL paths ->
-        do let filepath = intercalate "/" paths
-           mime <- guessContentTypeM mimeTypes filepath
+        do let name = intercalate "/" paths
+           exists <- liftIO $ isYUIFile name
+           guard exists
+           mime <- guessContentTypeM mimeTypes name
            setHeaderM "Content-Type" mime
-           maybe mzero (ok . toResponse) $ Map.lookup filepath bundle
+           bytes <- liftIO $ readYUIFile name
+           ok . toResponse $ bytes
       ComboHandlerURL ->
         do qs <- liftM (map fst) lookPairs
-           if null qs || any (`Map.notMember` bundle) qs
+           exists <- liftIO $ mapM isYUIFile qs
+           if null qs || any (== False) exists
              then badRequest $ toResponse ()
              else do mime <- guessContentTypeM mimeTypes $ head qs
                      setHeaderM "Content-Type" mime
-                     ok $ toResponse $ B.concat $ map (bundle Map.!) qs
+                     bytes <- liftIO $ mapM readYUIFile qs
+                     ok $ toResponse $ B.concat bytes
       CSSComboURL ->
         do qs <- liftM (map (css . fst)) lookPairs
-           if null qs || any (`Map.notMember` bundle) qs
+           exists <- liftIO $ mapM isYUIFile qs
+           if null qs || any (== False) exists
              then badRequest $ toResponse ()
              else do setHeaderM "Content-Type" "text/css"
-                     ok $ toResponse $ B.concat $ map (bundle Map.!) qs
+                     bytes <- liftIO $ mapM readYUIFile qs
+                     ok $ toResponse $ B.concat bytes
       ConfigURL ->
         do config <- mkConfig
            ok $ toResponse config
       SeedURL ->
         do config <- mkConfig
+           seed <- liftIO $ readYUIFile "yui/yui-min.js"
            setHeaderM "Content-Type" "application/javascript"
            ok $ toResponse $ seed `B.append` (encode . render) config
   where
-    seed   = bundle Map.! "yui/yui-min.js"
     render = renderStyle (style { mode = OneLineMode }) . renderJs
     encode = encodeUtf8 . T.pack
     css fn = "css" ++ fn ++ "/css" ++ fn ++ "-min.css"
