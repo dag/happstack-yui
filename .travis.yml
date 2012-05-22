@@ -1,4 +1,5 @@
 language: haskell
 before_install: make happstack-yui.cabal
-after_install: cabal clean && cabal install -fembed
-script: cabal install ./demo
+script:
+- cabal install ./demo
+- cabal install -fembed && cabal install ./demo
