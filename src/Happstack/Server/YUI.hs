@@ -4,6 +4,7 @@ module Happstack.Server.YUI
   ( implYUISite
   , bundle
   , gridUnit
+  , fontSize
   ) where
 
 import Prelude hiding ((.))
@@ -24,6 +25,7 @@ import Happstack.Server.YUI.Bundle  (bundle)
 import Language.Javascript.JMacro   (JStat(BlockStat), jmacro, renderJs, jhFromList, toJExpr)
 import Text.Boomerang.TH            (derivePrinterParsers)
 import Text.PrettyPrint             (Style(mode), Mode(OneLineMode), renderStyle, style)
+import Text.Printf                  (printf)
 import Web.Routes                   (Site, RouteT, showURL)
 import Web.Routes.Boomerang         (Router, (<>), (</>), rList, anyString, eos, boomerangSiteRouteT)
 import Web.Routes.Happstack         (implSite)
@@ -151,3 +153,38 @@ gridUnit n d =
              , "-"
              , T.pack . show . denominator $ n % d
              ]
+
+-- | Converts a pixel size to a percentage suitable for use
+-- with the CSS fonts module:
+--
+-- >>> fontSize 16
+-- "123.1%"
+--
+-- Useful in generated stylesheets, for example with HSP:
+--
+-- ><style>
+-- >  h1 { font-size: <% fontSize 26 %> }
+-- ></style>
+fontSize :: Integer -> T.Text
+fontSize 10 = "77%"
+fontSize 11 = "85%"
+fontSize 12 = "93%"
+fontSize 13 = "100%"
+fontSize 14 = "108%"
+fontSize 15 = "116%"
+fontSize 16 = "123.1%"
+fontSize 17 = "131%"
+fontSize 18 = "138.5%"
+fontSize 19 = "146.5%"
+fontSize 20 = "153.9%"
+fontSize 21 = "161.6%"
+fontSize 22 = "167%"
+fontSize 23 = "174%"
+fontSize 24 = "182%"
+fontSize 25 = "189%"
+fontSize 26 = "197%"
+fontSize px =
+    T.pack . printf "%.1f%%" $ percentage
+  where
+    percentage :: Double
+    percentage = fromIntegral px * (100 / 13)

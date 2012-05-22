@@ -30,6 +30,9 @@ demo = liftM toResponse $ unXMLGenT
         <link href="http://localhost:8000/yui/3.5.1/css?reset&base&fonts&grids" rel="stylesheet"/>
         <script src="http://localhost:8000/yui/3.5.1/"/>
         <% [jmacro| YUI().use "node" \y -> y.one("h1").set("text", "Set from YUI!") |] %>
+        <style>
+          h1 { font-size: <% fontSize 36 %> }
+        </style>
       </head>
       <body>
         <div class="yui3-g">
