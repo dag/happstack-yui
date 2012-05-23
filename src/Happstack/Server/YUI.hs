@@ -1,11 +1,14 @@
 {-# LANGUAGE CPP, OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
 
 module Happstack.Server.YUI
-  ( implYUISite
-  , isYUIFile
-  , readYUIFile
+  ( -- * Combo Handler
+    implYUISite
+    -- * CSS utilities
   , gridUnit
   , fontSize
+    -- * Bundle utilities
+  , isYUIFile
+  , readYUIFile
   ) where
 
 import Prelude hiding ((.))
