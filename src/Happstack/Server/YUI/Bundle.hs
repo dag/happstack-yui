@@ -21,6 +21,10 @@ bundle :: Map FilePath ByteString
 bundle = fromList $(embedDir "bundle")
 #endif
 
+-- | Tells if a file is included in the YUI bundle.
+--
+-- >>> isYUIFile "yui/yui-min.js"
+-- True
 isYUIFile :: FilePath -> IO Bool
 #if EMBED
 isYUIFile name = return $ member name bundle
@@ -28,6 +32,7 @@ isYUIFile name = return $ member name bundle
 isYUIFile name = getDataFileName ("bundle/" ++ name) >>= doesFileExist
 #endif
 
+-- | Reads the contents of a file included in the YUI bundle.
 readYUIFile :: FilePath -> IO ByteString
 #if EMBED
 readYUIFile name = return $ bundle ! name
