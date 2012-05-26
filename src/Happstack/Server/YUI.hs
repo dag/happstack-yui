@@ -150,6 +150,8 @@ route url = do
 --
 -- >>> gridUnit 6 24
 -- "yui3-u-1-4"
+-- >>> gridUnit 24 24
+-- "yui3-u-1"
 --
 -- The intention is for this function to be used in templates to create
 -- values for class attributes, for example with HSP:
@@ -159,11 +161,12 @@ route url = do
 -- ></div>
 gridUnit :: Integer -> Integer -> T.Text
 gridUnit n d =
-    T.concat [ "yui3-u-"
-             , T.pack . show . numerator $ n % d
-             , "-"
-             , T.pack . show . denominator $ n % d
-             ]
+    if (num,den) == (1,1)
+      then "yui3-u-1"
+      else T.concat ["yui3-u-", T.pack . show $ num, "-", T.pack . show $ den]
+  where
+    num = numerator $ n % d
+    den = denominator $ n % d
 
 -- | Converts a pixel size to a percentage suitable for use
 -- with the CSS fonts module:
