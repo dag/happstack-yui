@@ -16,23 +16,24 @@ import Prelude hiding ((.))
 import qualified Data.ByteString as B
 import qualified Data.Text       as T
 
-import Control.Category             (Category((.)))
-import Control.Monad                (guard, liftM, void)
-import Control.Monad.Trans          (liftIO)
-import Data.List                    (intercalate)
-import Data.Ratio                   ((%), numerator,denominator)
-import Data.Text.Encoding           (encodeUtf8)
-import Happstack.Server             (ServerPartT, Response, neverExpires, setHeaderM, badRequest, ok, toResponse, guessContentTypeM, mimeTypes, lookPairs)
-import Happstack.Server.Compression (compressedResponseFilter)
-import Happstack.Server.JMacro      ()
-import Happstack.Server.YUI.Bundle  (isYUIFile, readYUIFile)
-import Language.Javascript.JMacro   (JStat(BlockStat), jmacro, renderJs, jhFromList, toJExpr)
-import Text.Boomerang.TH            (derivePrinterParsers)
-import Text.PrettyPrint             (Style(mode), Mode(OneLineMode), renderStyle, style)
-import Text.Printf                  (printf)
-import Web.Routes                   (Site, RouteT, showURL)
-import Web.Routes.Boomerang         (Router, (<>), (</>), rList, anyString, eos, boomerangSiteRouteT)
-import Web.Routes.Happstack         (implSite)
+import Control.Category              (Category((.)))
+import Control.Monad                 (guard, liftM, void)
+import Control.Monad.Trans           (liftIO)
+import Data.List                     (intercalate)
+import Data.Ratio                    ((%), numerator,denominator)
+import Data.Text.Encoding            (encodeUtf8)
+import Happstack.Server              (ServerPartT, Response, neverExpires, setHeaderM, badRequest, ok, toResponse, guessContentTypeM, mimeTypes, lookPairs)
+import Happstack.Server.Compression  (compressedResponseFilter)
+import Happstack.Server.JMacro       ()
+import Happstack.Server.YUI.Bundle   (isYUIFile, readYUIFile)
+import Language.Javascript.JMacro    (JStat(BlockStat), jmacro, renderJs, jhFromList, toJExpr)
+import Text.Boomerang.TH             (derivePrinterParsers)
+import Text.InterpolatedString.Perl6 (qq)
+import Text.PrettyPrint              (Style(mode), Mode(OneLineMode), renderStyle, style)
+import Text.Printf                   (printf)
+import Web.Routes                    (Site, RouteT, showURL)
+import Web.Routes.Boomerang          (Router, (<>), (</>), rList, anyString, eos, boomerangSiteRouteT)
+import Web.Routes.Happstack          (implSite)
 
 #if !MIN_VERSION_template_haskell(2,7,0)
 import Language.Javascript.JMacro   (JStat(..), JExpr(..), JVal(..), Ident(..))
@@ -163,7 +164,7 @@ gridUnit :: Integer -> Integer -> T.Text
 gridUnit n d
   | num == 0           = "yui3-u"
   | (num,den) == (1,1) = "yui3-u-1"
-  | otherwise          = T.concat ["yui3-u-", T.pack . show $ num, "-", T.pack . show $ den]
+  | otherwise          = [qq|yui3-u-$num-$den|]
   where
     num = numerator $ n % d
     den = denominator $ n % d
