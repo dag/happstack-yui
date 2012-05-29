@@ -160,10 +160,10 @@ route url = do
 -- >  <% someContent %>
 -- ></div>
 gridUnit :: Integer -> Integer -> T.Text
-gridUnit n d =
-    if (num,den) == (1,1)
-      then "yui3-u-1"
-      else T.concat ["yui3-u-", T.pack . show $ num, "-", T.pack . show $ den]
+gridUnit n d
+  | num == 0           = "yui3-u"
+  | (num,den) == (1,1) = "yui3-u-1"
+  | otherwise          = T.concat ["yui3-u-", T.pack . show $ num, "-", T.pack . show $ den]
   where
     num = numerator $ n % d
     den = denominator $ n % d
