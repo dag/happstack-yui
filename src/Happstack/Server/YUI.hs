@@ -214,10 +214,10 @@ fontSize px =
 -- passed to the function you give to @YUI().use()@.  Such variables are
 -- available in antiquotation splices with JMacro:
 --
---@
+-- @
 --do html \<- unXMLGenT \<p>Hello, World!\</p>
 --   ok [jmacro| YUI().use \"node\" \\y ->
 --                 y.one(\"body\").append(`(y ``createNode`` html`)) |]
---@
+-- @
 createNode :: JExpr -> XML -> JExpr
 createNode y xml = [jmacroE| `(y)`.Node.create(`(renderAsHTML xml)`) |]
