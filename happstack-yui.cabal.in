@@ -63,6 +63,7 @@ Library
     containers               >= 0.4 && < 0.6,
     happstack-jmacro         == 7.0.*,
     happstack-server         == 7.0.*,
+    hsp                      == 0.7.*,
     interpolatedstring-perl6 == 0.9.*,
     jmacro                   == 0.5.*,
     mtl                      >= 2.0 && < 2.2,

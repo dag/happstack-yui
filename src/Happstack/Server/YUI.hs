@@ -6,6 +6,8 @@ module Happstack.Server.YUI
     -- * CSS utilities
   , gridUnit
   , fontSize
+    -- * JS utilities
+  , createNode
     -- * Bundle utilities
   , isYUIFile
   , readYUIFile
@@ -26,7 +28,8 @@ import Happstack.Server              (ServerPartT, Response, neverExpires, setHe
 import Happstack.Server.Compression  (compressedResponseFilter)
 import Happstack.Server.JMacro       ()
 import Happstack.Server.YUI.Bundle   (isYUIFile, readYUIFile)
-import Language.Javascript.JMacro    (JStat(BlockStat), jmacro, renderJs, jhFromList, toJExpr)
+import HSP                           (XML, renderAsHTML)
+import Language.Javascript.JMacro    (JStat(BlockStat), JExpr, jmacro, jmacroE, renderJs, jhFromList, toJExpr)
 import Text.Boomerang.TH             (derivePrinterParsers)
 import Text.InterpolatedString.Perl6 (qq)
 import Text.PrettyPrint              (Style(mode), Mode(OneLineMode), renderStyle, style)
@@ -203,3 +206,18 @@ fontSize px =
   where
     percentage :: Double
     percentage = fromIntegral px * (100 / 13)
+
+-- | Creates a YUI Node object from XML created using HSP, for use with
+-- JMacro.  This generates less code than using the @hsx-jmacro@ package to
+-- achieve the same effect, since it goes straight to YUI without directly
+-- using the DOM itself.  The first argument is the YUI object that gets
+-- passed to the function you give to @YUI().use()@.  Such variables are
+-- available in antiquotation splices with JMacro:
+--
+--@
+--do html \<- unXMLGenT \<p>Hello, World!\</p>
+--   ok [jmacro| YUI().use \"node\" \\y ->
+--                 y.one(\"body\").append(`(y ``createNode`` html`)) |]
+--@
+createNode :: JExpr -> XML -> JExpr
+createNode y xml = [jmacroE| `(y)`.Node.create(`(renderAsHTML xml)`) |]

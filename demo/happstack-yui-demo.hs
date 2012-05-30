@@ -24,22 +24,24 @@ main =
            ]
 
 demo :: ServerPart Response
-demo = liftM toResponse $ unXMLGenT
-    <html>
-      <head>
-        <link href="http://localhost:8000/yui/3.5.1/css?reset&base&fonts&grids" rel="stylesheet"/>
-        <script src="http://localhost:8000/yui/3.5.1/"/>
-        <% [jmacro| YUI().use "node" \y -> y.one("h1").set("text", "Set from YUI!") |] %>
-        <style>
-          h1 { font-size: <% fontSize 36 %> }
-        </style>
-      </head>
-      <body>
-        <div class="yui3-g">
-          <div class=(gridUnit 2 24)/>
-          <div class="yui3-u">
-            <h1>Boring unscripted title</h1>
+demo = do
+    html <- unXMLGenT <h1>Set from <a href="http://yuilibrary.com/">YUI</a>!</h1>
+    liftM toResponse $ unXMLGenT
+      <html>
+        <head>
+          <link href="http://localhost:8000/yui/3.5.1/css?reset&base&fonts&grids" rel="stylesheet"/>
+          <script src="http://localhost:8000/yui/3.5.1/"/>
+          <% [jmacro| YUI().use "node" \y -> y.one("h1").replace(`(y `createNode` html)`) |] %>
+          <style>
+            h1 { font-size: <% fontSize 36 %> }
+          </style>
+        </head>
+        <body>
+          <div class="yui3-g">
+            <div class=(gridUnit 2 24)/>
+            <div class="yui3-u">
+              <h1>Boring unscripted title</h1>
+            </div>
           </div>
-        </div>
-      </body>
-    </html>
+        </body>
+      </html>
