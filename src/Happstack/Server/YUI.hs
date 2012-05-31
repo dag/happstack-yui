@@ -6,6 +6,7 @@ module Happstack.Server.YUI
   , YUISitemap(..)
   , sitemap
   , route
+  , showCSSComboURL
     -- * CSS utilities
   , gridUnit
   , fontSize
@@ -168,6 +169,22 @@ route url = do
     render = renderStyle (style { mode = OneLineMode }) . renderJs
     encode = encodeUtf8 . T.pack
     css fn = "css" ++ fn ++ "/css" ++ fn ++ "-min.css"
+
+-- | Helper for building a URL to 'CSSComboURL'.
+--
+-- >do cssURL <- showCSSComboURL YUI ["reset", "base", "fonts", grids"]
+-- >   unXMLGenT
+-- >     <html>
+-- >       <head>
+-- >         <link href=cssURL rel="stylesheet"/>
+-- >       </head>
+-- >     </html>
+showCSSComboURL :: WR.MonadRoute m
+                => (YUISitemap -> WR.URL m)  -- ^ Constructor for 'YUISitemap' inside your own sitemap.
+                -> [T.Text]                  -- ^ Names of CSS modules to include, in order.
+                -> m T.Text
+showCSSComboURL yui ms =
+    WR.showURLParams (yui CSSComboURL) [(m,Nothing) | m <- ms]
 
 -- | Gets the class name for the grid unit of the ratio of the two argument
 -- integers.  YUI doesn't define redundant classes like \"6\/24\" because

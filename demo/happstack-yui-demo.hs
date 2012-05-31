@@ -13,7 +13,7 @@ import Data.Unique
 import HSX.JMacro
 import Happstack.Server
 import Happstack.Server.HSP.HTML
-import Happstack.Server.YUI       (YUISitemap(..), createNode, fontSize, gridUnit)
+import Happstack.Server.YUI       (YUISitemap(..), showCSSComboURL, createNode, fontSize, gridUnit)
 import Language.Javascript.JMacro
 import Text.Boomerang.TH
 import Web.Routes
@@ -40,11 +40,7 @@ route :: Sitemap -> RouteT Sitemap (ServerPartT IO) Response
 route (YUI url) = nestURL YUI (Y.route url)
 route DemoURL = do
     html <- unXMLGenT <h1>Set from <a href="http://yuilibrary.com/">YUI</a>!</h1>
-    cssURL <- showURLParams (YUI CSSComboURL) [ (fromString "reset", Nothing)
-                                              , (fromString "base", Nothing)
-                                              , (fromString "fonts", Nothing)
-                                              , (fromString "grids", Nothing)
-                                              ]
+    cssURL <- showCSSComboURL YUI $ map fromString ["reset", "base", "fonts", "grids"]
     liftM toResponse $ unXMLGenT
       <html>
         <head>
