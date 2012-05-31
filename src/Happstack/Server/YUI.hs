@@ -41,6 +41,7 @@ import Text.Printf                   (printf)
 import Web.Routes                    (Site, RouteT)
 import Web.Routes.Boomerang          (Router, (<>), (</>), rList, anyString, eos, boomerangSiteRouteT)
 import Web.Routes.Happstack          (implSite)
+import Web.Routes.TH                 (derivePathInfo)
 
 #if !MIN_VERSION_template_haskell(2,7,0)
 import Language.Javascript.JMacro   (JStat(..), JExpr(..), JVal(..), Ident(..))
@@ -54,6 +55,10 @@ import Language.Javascript.JMacro   (JStat(..), JExpr(..), JVal(..), Ident(..))
 -- The version number of the bundled YUI release is included in the routes
 -- for sake of cache-busting: the routes all respond with far-future
 -- expiration dates.
+--
+-- A 'WR.PathInfo' instance is provided in case you're using @web-routes@
+-- without @boomerang@.  This isn't recommended for production, however,
+-- since the YUI version number is not included in this case.
 data YUISitemap
     = ComboURL
     -- ^ [@\/YUI_VERSION\/combo@]
@@ -76,6 +81,8 @@ data YUISitemap
     -- ^ [@\/YUI_VERSION\/@]
     --     The YUI seed file plus the configuration for using our own
     --     combo loader.
+
+derivePathInfo ''YUISitemap
 
 derivePrinterParsers ''YUISitemap
 
