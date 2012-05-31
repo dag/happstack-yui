@@ -28,7 +28,7 @@ import Control.Monad.Trans           (liftIO)
 import Data.List                     (intercalate)
 import Data.Ratio                    ((%), numerator,denominator)
 import Data.Text.Encoding            (encodeUtf8)
-import Happstack.Server              (ServerPartT, Response, neverExpires, setHeaderM, badRequest, ok, toResponse, guessContentTypeM, mimeTypes, lookPairs)
+import Happstack.Server              (Happstack, Response, neverExpires, setHeaderM, badRequest, ok, toResponse, guessContentTypeM, mimeTypes, lookPairs)
 import Happstack.Server.Compression  (compressedResponseFilter)
 import Happstack.Server.JMacro       ()
 import Happstack.Server.YUI.Bundle   (isYUIFile, readYUIFile)
@@ -101,18 +101,19 @@ sitemap =
       <> rSeedURL
        )
 
-site :: Site YUISitemap (ServerPartT IO Response)
+site :: Happstack m => Site YUISitemap (m Response)
 site = boomerangSiteRouteT route sitemap
 
 -- | Mounts a handler for serving YUI.  You can use this if you're not
 -- using @web-routes@ in your own application.  See 'YUISitemap' for the
 -- routes the mounted handler responds to.
-implYUISite :: T.Text  -- ^ The URL of your application, e.g. @\"http:\/\/localhost:8000\"@.
+implYUISite :: Happstack m
+            => T.Text  -- ^ The URL of your application, e.g. @\"http:\/\/localhost:8000\"@.
             -> T.Text  -- ^ The path under which to mount the YUI handler, e.g. @\"/yui\"@.
-            -> ServerPartT IO Response
+            -> m Response
 implYUISite domain approot = implSite domain approot site
 
-mkConfig :: RouteT YUISitemap (ServerPartT IO) JStat
+mkConfig :: Happstack m => RouteT YUISitemap m JStat
 mkConfig = do
     comboURL <- WR.showURL ComboURL
     return [jmacro|
@@ -125,7 +126,7 @@ mkConfig = do
 --
 -- >import qualified Happstack.Server.YUI as Y
 -- >route (YUI url) = nestURL YUI (Y.route url)
-route :: YUISitemap -> RouteT YUISitemap (ServerPartT IO) Response
+route :: Happstack m => YUISitemap -> RouteT YUISitemap m Response
 route url = do
     neverExpires
     void compressedResponseFilter
