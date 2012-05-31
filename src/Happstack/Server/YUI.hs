@@ -3,9 +3,9 @@
 module Happstack.Server.YUI
   ( -- * Combo Handler
     implYUISite
-  , SitemapYUI(..)
-  , sitemapYUI
-  , routeYUI
+  , YUISitemap(..)
+  , sitemap
+  , route
     -- * CSS utilities
   , gridUnit
   , fontSize
@@ -20,6 +20,7 @@ import Prelude hiding ((.))
 
 import qualified Data.ByteString as B
 import qualified Data.Text       as T
+import qualified Web.Routes      as WR
 
 import Control.Category              (Category((.)))
 import Control.Monad                 (guard, liftM, void)
@@ -37,7 +38,7 @@ import Text.Boomerang.TH             (derivePrinterParsers)
 import Text.InterpolatedString.Perl6 (qq)
 import Text.PrettyPrint              (Style(mode), Mode(OneLineMode), renderStyle, style)
 import Text.Printf                   (printf)
-import Web.Routes                    (Site, RouteT, showURL)
+import Web.Routes                    (Site, RouteT)
 import Web.Routes.Boomerang          (Router, (<>), (</>), rList, anyString, eos, boomerangSiteRouteT)
 import Web.Routes.Happstack          (implSite)
 
@@ -45,70 +46,80 @@ import Web.Routes.Happstack          (implSite)
 import Language.Javascript.JMacro   (JStat(..), JExpr(..), JVal(..), Ident(..))
 #endif
 
-data SitemapYUI
-    = ComboHandlerURL
+-- | The @web-routes@ sitemap for the handler that serves up the YUI
+-- bundle.  You can embed this in your own sitemap, something like:
+--
+-- >data Sitemap = YUI YUISitemap | Home
+--
+-- The version number of the bundled YUI release is included in the routes
+-- for sake of cache-busting: the routes all respond with far-future
+-- expiration dates.
+data YUISitemap
+    = ComboURL
+    -- ^ [@\/YUI_VERSION\/combo@]
+    --     The combo loader.
     | BundleURL [String]
+    -- ^ [@\/YUI_VERSION\/bundle\/\<filename\>@]
+    --     Get an individual file without combo loading.
     | ConfigURL
+    -- ^ [@\/YUI_VERSION\/config@]
+    --     The code for configuring YUI to use our own combo loader.  Not needed
+    --     if you use the seed file mentioned above.
     | CSSComboURL
+    -- ^ [@\/YUI_VERSION\/css@]
+    --     A specialized combo loader for CSS modules, for use in @\<link\/\>@
+    --     tags.  Simply list the CSS modules in the query string by name rather
+    --     than file path, for example
+    --     @\"\/YUI_VERSION\/css?reset&base&fonts&grids\"@.  Order matters;
+    --     you'll usually want reset first if you use it.
     | SeedURL
+    -- ^ [@\/YUI_VERSION\/@]
+    --     The YUI seed file plus the configuration for using our own
+    --     combo loader.
 
-derivePrinterParsers ''SitemapYUI
+derivePrinterParsers ''YUISitemap
 
-sitemapYUI :: Router SitemapYUI
-sitemapYUI =
+-- | A @boomerang@ 'Router' for 'YUISitemap'.  If you embed the
+-- @YUISitemap@ in your own, you can also embed this router in your own:
+--
+-- >import qualified Happstack.Server.YUI as Y
+-- >sitemap = (rYUI . (lit "yui" </> Y.sitemap)) <> rHome
+sitemap :: Router YUISitemap
+sitemap =
     YUI_VERSION_STR </>
-       ( rComboHandlerURL . "combo"
+       ( rComboURL . "combo"
       <> rCSSComboURL . "css"
       <> rBundleURL . "bundle" </> rList (anyString . eos)
       <> rConfigURL . "config"
       <> rSeedURL
        )
 
-site :: Site SitemapYUI (ServerPartT IO Response)
-site = boomerangSiteRouteT routeYUI sitemapYUI
+site :: Site YUISitemap (ServerPartT IO Response)
+site = boomerangSiteRouteT route sitemap
 
--- | Mounts a handler for serving YUI.
---
--- The handler responds to these routes:
---
--- [@\/YUI_VERSION\/@]
---   The YUI seed file plus the configuration for using our own
---   combo loader.
---
--- [@\/YUI_VERSION\/combo@]
---   The combo loader.
---
--- [@\/YUI_VERSION\/css@]
---   A specialized combo loader for CSS modules, for use in @\<link\/\>@
---   tags.  Simply list the CSS modules in the query string by name rather
---   than file path, for example
---   @\"\/YUI_VERSION\/css?reset&base&fonts&grids\"@.  Order matters;
---   you'll usually want reset first if you use it.
---
--- [@\/YUI_VERSION\/bundle\/\<filename\>@]
---   Get an individual file without combo loading.
---
--- [@\/YUI_VERSION\/config@]
---   The code for configuring YUI to use our own combo loader.  Not needed
---   if you use the seed file mentioned above.
---
--- The version number of the bundled YUI release is included in the routes
--- for sake of cache-busting: the routes all respond with far-future
--- expiration dates.
+-- | Mounts a handler for serving YUI.  You can use this if you're not
+-- using @web-routes@ in your own application.  See 'YUISitemap' for the
+-- routes the mounted handler responds to.
 implYUISite :: T.Text  -- ^ The URL of your application, e.g. @\"http:\/\/localhost:8000\"@.
             -> T.Text  -- ^ The path under which to mount the YUI handler, e.g. @\"/yui\"@.
             -> ServerPartT IO Response
 implYUISite domain approot = implSite domain approot site
 
-mkConfig :: RouteT SitemapYUI (ServerPartT IO) JStat
+mkConfig :: RouteT YUISitemap (ServerPartT IO) JStat
 mkConfig = do
-    comboURL <- showURL ComboHandlerURL
+    comboURL <- WR.showURL ComboURL
     return [jmacro|
        YUI.applyConfig { comboBase: `((T.unpack comboURL) ++ "?")`, root: "" }
     |]
 
-routeYUI :: SitemapYUI -> RouteT SitemapYUI (ServerPartT IO) Response
-routeYUI url = do
+-- | Routes a 'YUISitemap' to its handler.  If you embed @YUISitemap@ in
+-- your own sitemap, you can use 'WR.nestURL' in your own routing function
+-- to dispatch to this one:
+--
+-- >import qualified Happstack.Server.YUI as Y
+-- >route (YUI url) = nestURL YUI (Y.route url)
+route :: YUISitemap -> RouteT YUISitemap (ServerPartT IO) Response
+route url = do
     neverExpires
     void compressedResponseFilter
     case url of
@@ -120,7 +131,7 @@ routeYUI url = do
            setHeaderM "Content-Type" mime
            bytes <- liftIO $ readYUIFile name
            ok . toResponse $ bytes
-      ComboHandlerURL ->
+      ComboURL ->
         do qs <- liftM (map fst) lookPairs
            exists <- liftIO $ mapM isYUIFile qs
            if null qs || any (== False) exists

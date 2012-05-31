@@ -13,29 +13,31 @@ import Data.Unique
 import HSX.JMacro
 import Happstack.Server
 import Happstack.Server.HSP.HTML
-import Happstack.Server.YUI
+import Happstack.Server.YUI       (YUISitemap(..), createNode, fontSize, gridUnit)
 import Language.Javascript.JMacro
 import Text.Boomerang.TH
 import Web.Routes
 import Web.Routes.Boomerang
 import Web.Routes.Happstack
-import Web.Routes.XMLGenT ()
+import Web.Routes.XMLGenT         ()
+
+import qualified Happstack.Server.YUI as Y
 
 instance IntegerSupply (RouteT Sitemap (ServerPartT IO)) where
     nextInteger = fmap (fromIntegral . (`mod` 1024) . hashUnique) (liftIO newUnique)
 
-data Sitemap = YUI SitemapYUI | DemoURL
+data Sitemap = YUI YUISitemap | DemoURL
 
 derivePrinterParsers ''Sitemap
 
 sitemap :: Router Sitemap
-sitemap = (rYUI . (lit "yui" </> sitemapYUI)) <> rDemoURL
+sitemap = (rYUI . (lit "yui" </> Y.sitemap)) <> rDemoURL
 
 site :: Site Sitemap (ServerPartT IO Response)
 site = boomerangSiteRouteT route sitemap
 
 route :: Sitemap -> RouteT Sitemap (ServerPartT IO) Response
-route (YUI url) = nestURL YUI (routeYUI url)
+route (YUI url) = nestURL YUI (Y.route url)
 route DemoURL = do
     html <- unXMLGenT <h1>Set from <a href="http://yuilibrary.com/">YUI</a>!</h1>
     cssURL <- showURLParams (YUI CSSComboURL) [ (fromString "reset", Nothing)
