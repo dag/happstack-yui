@@ -172,7 +172,7 @@ route url = do
 
 -- | Helper for building a URL to 'CSSComboURL'.
 --
--- >do cssURL <- showCSSComboURL YUI ["reset", "base", "fonts", grids"]
+-- >do cssURL <- showCSSComboURL YUI ["reset", "base", "fonts", "grids"]
 -- >   unXMLGenT
 -- >     <html>
 -- >       <head>
