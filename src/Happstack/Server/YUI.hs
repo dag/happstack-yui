@@ -143,7 +143,7 @@ route url = do
       ComboURL ->
         do qs <- liftM (map fst) lookPairs
            exists <- liftIO $ mapM isYUIFile qs
-           if null qs || any (== False) exists
+           if null qs || any not exists
              then badRequest $ toResponse ()
              else do mime <- guessContentTypeM mimeTypes $ head qs
                      setHeaderM "Content-Type" mime
@@ -152,7 +152,7 @@ route url = do
       CSSComboURL ->
         do qs <- liftM (map (css . fst)) lookPairs
            exists <- liftIO $ mapM isYUIFile qs
-           if null qs || any (== False) exists
+           if null qs || any not exists
              then badRequest $ toResponse ()
              else do setHeaderM "Content-Type" "text/css"
                      bytes <- liftIO $ mapM readYUIFile qs
