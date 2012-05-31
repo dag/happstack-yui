@@ -3,6 +3,9 @@
 module Happstack.Server.YUI
   ( -- * Combo Handler
     implYUISite
+  , SitemapYUI(..)
+  , sitemapYUI
+  , routeYUI
     -- * CSS utilities
   , gridUnit
   , fontSize
@@ -42,17 +45,17 @@ import Web.Routes.Happstack          (implSite)
 import Language.Javascript.JMacro   (JStat(..), JExpr(..), JVal(..), Ident(..))
 #endif
 
-data Sitemap
+data SitemapYUI
     = ComboHandlerURL
     | BundleURL [String]
     | ConfigURL
     | CSSComboURL
     | SeedURL
 
-derivePrinterParsers ''Sitemap
+derivePrinterParsers ''SitemapYUI
 
-sitemap :: Router Sitemap
-sitemap =
+sitemapYUI :: Router SitemapYUI
+sitemapYUI =
     YUI_VERSION_STR </>
        ( rComboHandlerURL . "combo"
       <> rCSSComboURL . "css"
@@ -61,8 +64,8 @@ sitemap =
       <> rSeedURL
        )
 
-site :: Site Sitemap (ServerPartT IO Response)
-site = boomerangSiteRouteT route sitemap
+site :: Site SitemapYUI (ServerPartT IO Response)
+site = boomerangSiteRouteT routeYUI sitemapYUI
 
 -- | Mounts a handler for serving YUI.
 --
@@ -97,15 +100,15 @@ implYUISite :: T.Text  -- ^ The URL of your application, e.g. @\"http:\/\/localh
             -> ServerPartT IO Response
 implYUISite domain approot = implSite domain approot site
 
-mkConfig :: RouteT Sitemap (ServerPartT IO) JStat
+mkConfig :: RouteT SitemapYUI (ServerPartT IO) JStat
 mkConfig = do
     comboURL <- showURL ComboHandlerURL
     return [jmacro|
        YUI.applyConfig { comboBase: `((T.unpack comboURL) ++ "?")`, root: "" }
     |]
 
-route :: Sitemap -> RouteT Sitemap (ServerPartT IO) Response
-route url = do
+routeYUI :: SitemapYUI -> RouteT SitemapYUI (ServerPartT IO) Response
+routeYUI url = do
     neverExpires
     void compressedResponseFilter
     case url of

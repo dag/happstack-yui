@@ -13,9 +13,14 @@ Executable happstack-yui-demo
     -threaded -rtsopts -with-rtsopts=-N
   Build-Depends    :
     base == 4.*,
+    boomerang,
     happstack-hsp,
     happstack-server,
     happstack-yui,
     hsx-jmacro,
     jmacro,
-    mtl
+    mtl,
+    web-routes,
+    web-routes-hsp,
+    web-routes-boomerang,
+    web-routes-happstack
