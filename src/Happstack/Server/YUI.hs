@@ -60,7 +60,11 @@ import Language.Javascript.JMacro   (JStat(..), JExpr(..), JVal(..), Ident(..))
 -- without @boomerang@.  This isn't recommended for production, however,
 -- since the YUI version number is not included in this case.
 data YUISitemap
-    = ComboURL
+    = SeedURL
+    -- ^ [@\/YUI_VERSION\/@]
+    --     The YUI seed file plus the configuration for using our own
+    --     combo loader.
+    | ComboURL
     -- ^ [@\/YUI_VERSION\/combo@]
     --     The combo loader.
     | BundleURL [String]
@@ -77,10 +81,6 @@ data YUISitemap
     --     than file path, for example
     --     @\"\/YUI_VERSION\/css?reset&base&fonts&grids\"@.  Order matters;
     --     you'll usually want reset first if you use it.
-    | SeedURL
-    -- ^ [@\/YUI_VERSION\/@]
-    --     The YUI seed file plus the configuration for using our own
-    --     combo loader.
 
 derivePathInfo ''YUISitemap
 
