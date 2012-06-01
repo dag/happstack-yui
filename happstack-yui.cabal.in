@@ -28,10 +28,11 @@ Description :
   of this package itself, as defined by the Package Versioning Policy.
   .
   The package also includes some utilities for working with the YUI CSS
-  modules.  In a future release, the plan is to add more utilities, for
-  example a combo handler for YUI modules written using JMacro, a bridge
-  between HSX and YUI Node objects and tools for making it easier to work
-  with modules like Uploader and Pjax.
+  modules and for using HSX to create YUI Node objects with JMacro.  In a
+  future release, the plan is to add more utilities, for example a combo
+  handler for YUI modules written using JMacro, tools for making it
+  easier to work with modules like Uploader and Pjax and a quasi-quoter for
+  compile-time syntax checked YQL queries.
   .
   For an example application, see:
   <https://github.com/dag/happstack-yui/blob/master/demo/happstack-yui-demo.hs>
