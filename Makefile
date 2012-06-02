@@ -9,6 +9,7 @@ bundle: yui_$(YUI_VERSION).zip
 	unzip $< 'yui/build/*'
 	mv yui/build bundle
 	rmdir yui
+	rm -rf bundle/build
 
 bundle.h: bundle
 	find bundle -type f > $@
