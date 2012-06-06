@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -F -pgmF trhsx #-}
-{-# LANGUAGE FlexibleInstances, QuasiQuotes, TemplateHaskell #-}
+{-# LANGUAGE FlexibleInstances, QuasiQuotes, TemplateHaskell, TypeSynonymInstances #-}
 
 module Main where
 
