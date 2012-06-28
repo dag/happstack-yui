@@ -1,5 +1,9 @@
 {-# LANGUAGE CPP, OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
 
+-- | YUI tools for Happstack.
+--
+-- Some of the examples assume you're using the @OverloadedStrings@ GHC
+-- extension.
 module Happstack.Server.YUI
   ( -- * Combo Handler
     implYUISite
@@ -91,7 +95,7 @@ derivePrinterParsers ''YUISitemap
 -- @YUISitemap@ in your own, you can also embed this router in your own:
 --
 -- >import qualified Happstack.Server.YUI as Y
--- >sitemap = (rYUI . (lit "yui" </> Y.sitemap)) <> rHome
+-- >sitemap = (rYUI . ("yui" </> Y.sitemap)) <> rHome
 sitemap :: Router YUISitemap
 sitemap =
     YUI_VERSION_STR </>

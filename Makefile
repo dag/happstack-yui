@@ -1,4 +1,5 @@
 YUI_VERSION = 3.5.1
+PATH := $(PWD)/cabal-dev/bin:$(PATH)
 
 all: install
 
@@ -35,5 +36,5 @@ docs: happstack-yui.cabal
 
 .PHONY: demo
 demo: install
-	PATH=$(PWD)/cabal-dev/bin:$(PATH) cabal-dev install ./demo
+	cabal-dev install ./demo
 	cabal-dev/bin/happstack-yui-demo

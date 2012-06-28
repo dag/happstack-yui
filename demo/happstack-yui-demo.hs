@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -F -pgmF trhsx #-}
-{-# LANGUAGE FlexibleInstances, QuasiQuotes, TemplateHaskell, TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances, OverloadedStrings, QuasiQuotes, TemplateHaskell, TypeSynonymInstances #-}
 
 module Main where
 
@@ -8,7 +8,6 @@ import Prelude hiding ((.), id)
 import Control.Category
 import Control.Monad
 import Control.Monad.Trans
-import Data.String
 import Data.Unique
 import HSX.JMacro
 import Happstack.Server
@@ -33,7 +32,7 @@ data Sitemap = YUI YUISitemap | DemoURL
 derivePrinterParsers ''Sitemap
 
 sitemap :: Router Sitemap
-sitemap = (rYUI . (lit "yui" </> Y.sitemap)) <> rDemoURL
+sitemap = (rYUI . ("yui" </> Y.sitemap)) <> rDemoURL
 
 site :: Site Sitemap (ServerPart Response)
 site = boomerangSiteRouteT route sitemap
@@ -45,7 +44,7 @@ route DemoURL   = liftM toResponse $ unXMLGenT demo
 demo :: XMLGenT Application XML
 demo = do
     title  <- <h1>Set from <a href="http://yuilibrary.com/">YUI</a>!</h1>
-    cssURL <- showCSSComboURL YUI $ map fromString ["reset", "base", "fonts", "grids"]
+    cssURL <- showCSSComboURL YUI ["reset", "base", "fonts", "grids"]
     <html>
       <head>
         <title>Demo application for happstack-yui</title>
@@ -67,5 +66,4 @@ demo = do
     </html>
 
 main :: IO ()
-main = simpleHTTP nullConf $
-         implSite (fromString "http://localhost:8000") (fromString "") site
+main = simpleHTTP nullConf $ implSite "http://localhost:8000" "" site
