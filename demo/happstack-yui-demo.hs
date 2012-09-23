@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -F -pgmF trhsx #-}
-{-# LANGUAGE FlexibleInstances, OverloadedStrings, QuasiQuotes, TemplateHaskell, TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances, OverloadedStrings, QuasiQuotes, TemplateHaskell, TypeOperators, TypeSynonymInstances #-}
 
 module Main where
 
@@ -31,7 +31,7 @@ data Sitemap = YUI YUISitemap | DemoURL
 
 derivePrinterParsers ''Sitemap
 
-sitemap :: Router Sitemap
+sitemap :: Router () (Sitemap :- ())
 sitemap = (rYUI . ("yui" </> Y.sitemap)) <> rDemoURL
 
 site :: Site Sitemap (ServerPart Response)
