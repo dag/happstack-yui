@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, OverloadedStrings, TemplateHaskell, QuasiQuotes #-}
+{-# LANGUAGE CPP, OverloadedStrings, QuasiQuotes, TemplateHaskell, TypeOperators, ViewPatterns #-}
 
 -- | YUI tools for Happstack.
 --
@@ -44,7 +44,7 @@ import Text.InterpolatedString.Perl6 (qq)
 import Text.PrettyPrint              (Style(mode), Mode(OneLineMode), renderStyle, style)
 import Text.Printf                   (printf)
 import Web.Routes                    (Site, RouteT)
-import Web.Routes.Boomerang          (Router, (<>), (</>), rList, anyString, eos, boomerangSiteRouteT)
+import Web.Routes.Boomerang          (Router, (:-), (<>), (</>), rList, anyText, eos, boomerangSiteRouteT)
 import Web.Routes.Happstack          (implSite)
 import Web.Routes.TH                 (derivePathInfo)
 
@@ -72,7 +72,7 @@ data YUISitemap
     | ComboURL
     -- ^ [@\/YUI_VERSION\/combo@]
     --     The combo loader.
-    | BundleURL [String]
+    | BundleURL [T.Text]
     -- ^ [@\/YUI_VERSION\/bundle\/\<filename\>@]
     --     Get an individual file without combo loading.
     | ConfigURL
@@ -96,12 +96,12 @@ derivePrinterParsers ''YUISitemap
 --
 -- >import qualified Happstack.Server.YUI as Y
 -- >sitemap = (rYUI . ("yui" </> Y.sitemap)) <> rHome
-sitemap :: Router YUISitemap
+sitemap :: Router () (YUISitemap :- ())
 sitemap =
     YUI_VERSION_STR </>
        ( rComboURL . "combo"
       <> rCSSComboURL . "css"
-      <> rBundleURL . "bundle" </> rList (anyString . eos)
+      <> rBundleURL . "bundle" </> rList (anyText . eos)
       <> rConfigURL . "config"
       <> rSeedURL
        )
@@ -136,7 +136,7 @@ route url = do
     neverExpires
     void compressedResponseFilter
     case url of
-      BundleURL paths ->
+      BundleURL (map T.unpack -> paths) ->
         do let name = intercalate "/" paths
            exists <- liftIO $ isYUIFile name
            guard exists

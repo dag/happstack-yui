@@ -72,7 +72,7 @@ Library
     template-haskell         >= 2.5 && < 2.9,
     text                     == 0.11.*,
     web-routes               == 0.27.*,
-    web-routes-boomerang     == 0.26.*,
+    web-routes-boomerang     == 0.27.*,
     web-routes-happstack     == 0.23.*,
     web-routes-th            >= 0.21 && < 0.23
 
