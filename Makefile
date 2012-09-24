@@ -1,4 +1,4 @@
-YUI_VERSION = 3.7.1
+YUI_VERSION = 3.7.2
 PATH := $(PWD)/cabal-dev/bin:$(PATH)
 
 all: install
