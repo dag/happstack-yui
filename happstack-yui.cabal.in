@@ -1,5 +1,5 @@
 Name          : happstack-yui
-Version       : 7371.5.0
+Version       : 7372.5.1
 Category      : Web, Happstack
 Synopsis      : Utilities for using YUI3 with Happstack.
 Homepage      : https://github.com/dag/happstack-yui
